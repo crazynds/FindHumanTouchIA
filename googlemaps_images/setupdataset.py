@@ -9,25 +9,25 @@ cities = pd.read_csv('extra/worldcities.csv').sample(frac=0.01,random_state=1)
 downloader = getImagesMaps.GoogleMapDownloader()
 
 
-lat = []
-long = []
+lats = []
+longs = []
 tipo = []
 local = []
 result = []
 
 for city in cities.itertuples():
-    print(city.lat,city.lng)
-    downloader.setXY(city.lat,city.lng,16)
-    fileA = f"./extra/cities/city-simple({city.lat}|{city.lng}).png"
-    fileB = f"./extra/cities/city-satelite({city.lat}|{city.lng}).png"
+    lat,long = city.lat,city.lng
+    downloader.setXY(lat,long,16)
+    fileA = f"./extra/cities/city-simple({lat}_{long}).png"
+    fileB = f"./extra/cities/city-satelite({lat}_{long}).png"
     try:
         img = downloader.generateImage()
     except IOError as e:
         print(e)
     else:
 
-        lat.append(city.lat)
-        long.append(city.long)
+        lats.append(lat)
+        longs.append(long)
         tipo.append('simple')
         local.append(fileA)
         result.append('city')
@@ -42,8 +42,8 @@ for city in cities.itertuples():
         print(e)
     else:
 
-        lat.append(city.lat)
-        long.append(city.long)
+        lats.append(lat)
+        longs.append(long)
         tipo.append('satelite')
         local.append(fileB)
         result.append('city')
@@ -55,8 +55,8 @@ for city in cities.itertuples():
 
 
 generated = pd.DataFrame.from_dict({
-    'lat': lat,
-    'long': long,
+    'lat': lats,
+    'long': longs,
     'type': tipo,
     'local': local,
     'result': result
