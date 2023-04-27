@@ -2,3 +2,5 @@ ipykernel
 tensorflow
 tensorflow_datasets
 keras
+pillow
+pandas
