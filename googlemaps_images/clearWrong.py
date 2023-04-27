@@ -147,4 +147,4 @@ for erase in arr:
 
 print (generated)
 
-#generated.to_csv('cities.csv')
+generated.to_csv('./extra/cities.csv')

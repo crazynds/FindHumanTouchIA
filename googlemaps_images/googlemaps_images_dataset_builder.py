@@ -35,7 +35,7 @@ class Builder(tfds.core.GeneratorBasedBuilder):
     random = pd.read_csv("./extra/random.csv")
     del random['Unnamed: 0']
 
-    all = pd.concat([cities,random])
+    all = pd.concat([cities,random],ignore_index=True)
 
     return {
         'train': self._generate_examples(all,'simple'),
@@ -45,7 +45,7 @@ class Builder(tfds.core.GeneratorBasedBuilder):
     for tuple in df.itertuples():
       if tuple.type != type:
         continue
-      yield (tuple.lat,tuple.long), {
+      yield tuple.Index, {
           'image': os.path.abspath(tuple.local),
           'label': 'yes' if tuple.result != 'nature' else 'no',
       }
