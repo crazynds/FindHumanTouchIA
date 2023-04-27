@@ -10,8 +10,8 @@ dataset_size = info.splits["train"].num_examples
 class_names = info.features["label"].names
 n_classes = info.features["label"].num_classes 
 
-test_set_raw, valid_set_raw, train_set_raw = tfds.load("googlemaps_images",
-                                                       split=["train[:10%]","train[10%:25%]","train[25%:]"],
+valid_set_raw, train_set_raw = tfds.load("googlemaps_images",
+                                                       split=["train[:15%]","train[15%:]"],
                                                        as_supervised = True)
 
 batch_size = 32
@@ -22,7 +22,6 @@ preprocess = tf.keras.Sequential([
 train_set = train_set_raw.map(lambda x,y: (preprocess(x),y))
 train_set = train_set.shuffle(1000,seed=globalSeed).batch(batch_size).prefetch(1)
 valid_set = valid_set_raw.map(lambda x,y: (preprocess(x),y)).batch(batch_size)
-test_set = test_set_raw.map(lambda x,y: (preprocess(x),y)).batch(batch_size)
 
 data_augmentation = tf.keras.Sequential([
     tf.keras.layers.RandomFlip(mode="horizontal",seed=globalSeed),
