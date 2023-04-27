@@ -1,7 +1,8 @@
 """googlemaps_images dataset."""
 
 import tensorflow_datasets as tfds
-
+import pandas as pd
+import os
 
 class Builder(tfds.core.GeneratorBasedBuilder):
   """DatasetBuilder for googlemaps_images dataset."""
@@ -17,31 +18,34 @@ class Builder(tfds.core.GeneratorBasedBuilder):
     return self.dataset_info_from_configs(
         features=tfds.features.FeaturesDict({
             # These are the features of your dataset like images, labels ...
-            'image': tfds.features.Image(shape=(None, None, 3)),
+            'image': tfds.features.Image(shape=(256, 256, 3)),
             'label': tfds.features.ClassLabel(names=['no', 'yes']),
         }),
         # If there's a common (input, target) tuple from the
         # features, specify them here. They'll be used if
         # `as_supervised=True` in `builder.as_dataset`.
         supervised_keys=('image', 'label'),  # Set to `None` to disable
-        homepage='https://dataset-homepage/',
+        homepage='https://github.com/crazynds/FindHumanTouchIA',
     )
 
   def _split_generators(self, dl_manager: tfds.download.DownloadManager):
     """Returns SplitGenerators."""
-    # TODO(googlemaps_images): Downloads the data and defines the splits
-    path = dl_manager.download_and_extract('https://todo-data-url')
+    cities = pd.read_csv("./extra/cities.csv")
+    del cities['Unnamed: 0']
+    random = pd.read_csv("./extra/random.csv")
+    del random['Unnamed: 0']
 
-    # TODO(googlemaps_images): Returns the Dict[split names, Iterator[Key, Example]]
+    all = pd.concat([cities,random])
+
     return {
-        'train': self._generate_examples(path / 'train_imgs'),
+        'train': self._generate_examples(all,'simple'),
     }
 
-  def _generate_examples(self, path):
-    """Yields examples."""
-    # TODO(googlemaps_images): Yields (key, example) tuples from the dataset
-    for f in path.glob('*.jpeg'):
-      yield 'key', {
-          'image': f,
-          'label': 'yes',
+  def _generate_examples(self, df, type):
+    for tuple in df.itertuples():
+      if tuple.type != type:
+        continue
+      yield (tuple.lat,tuple.long), {
+          'image': os.path.abspath(tuple.local),
+          'label': 'yes' if tuple.result != 'nature' else 'no',
       }
