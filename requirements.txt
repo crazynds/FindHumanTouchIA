@@ -4,3 +4,5 @@ tensorflow_datasets
 keras
 pillow
 pandas
+pyyaml 
+h5py

@@ -15,7 +15,7 @@ valid_set_raw, train_set_raw = tfds.load("googlemaps_images",
                                                        split=["train[:15%]","train[15%:]"],
                                                        as_supervised = True)
 
-batch_size = 32
+batch_size = 1
 preprocess = tf.keras.Sequential([
     tf.keras.layers.Resizing(height=256,width=256,crop_to_aspect_ratio=True),
     tf.keras.layers.Lambda(tf.keras.applications.xception.preprocess_input)
@@ -29,15 +29,19 @@ avg = tf.keras.layers.GlobalAveragePooling2D()(base_model.output)
 output = tf.keras.layers.Dense(n_classes,activation="softmax")(avg)
 model = tf.keras.Model(inputs=base_model.input,outputs=output)
 
-for layer in base_model.layers:
-    layer.trainable = False
-
-checkpoint_path = "checkpoint.ckpt"
-cp_callback = tf.keras.callbacks.ModelCheckpoint(filepath=checkpoint_path,
-                                                 save_weights_only=True,
-                                                 verbose=1)
-
 
 optimizer = tf.keras.optimizers.SGD(learning_rate=0.1, momentum=0.9)
 model.compile(loss="sparse_categorical_crossentropy",optimizer=optimizer, metrics=["accuracy"])
-history = model.fit(train_set, validation_data=valid_set, epochs=10,callbacks=[cp_callback])
+
+checkpoint_path = "checkpoint.ckpt"
+model.load_weights(checkpoint_path)
+
+x = []
+y = []
+for a,b in valid_set:
+    x.append(a)
+    y.append(b)
+
+loss, acc = model.evaluate(x,y, verbose=2)
+print("Restored model, accuracy: {:5.2f}%".format(100 * acc))
+
