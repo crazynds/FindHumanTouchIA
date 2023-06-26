@@ -23,12 +23,6 @@ train_set = train_set_raw.map(lambda x,y: (preprocess(x),y))
 train_set = train_set.shuffle(1000,seed=globalSeed).batch(batch_size).prefetch(1)
 valid_set = valid_set_raw.map(lambda x,y: (preprocess(x),y)).batch(batch_size)
 
-data_augmentation = tf.keras.Sequential([
-    tf.keras.layers.RandomFlip(mode="horizontal",seed=globalSeed),
-    tf.keras.layers.RandomRotation(factor=0.05, seed=globalSeed),
-    tf.keras.layers.RandomContrast(factor=0.2, seed=globalSeed)
-])
-
 base_model = tf.keras.applications.xception.Xception(weights="imagenet", include_top=False)
 avg = tf.keras.layers.GlobalAveragePooling2D()(base_model.output)
 output = tf.keras.layers.Dense(n_classes,activation="softmax")(avg)
