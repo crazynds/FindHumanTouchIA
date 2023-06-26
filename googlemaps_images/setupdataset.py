@@ -21,7 +21,7 @@ else:
     })
 
 
-if len(generated)<1000:
+if len(generated)<1500 and False:
 
     cities = pd.read_csv('extra/worldcities.csv').sample(frac=0.005)
 
@@ -87,7 +87,7 @@ else:
 
 options = ['nature','farm','city','roads','ocean']
 
-while len(generated)<400:
+while len(generated)<600:
     lat = random.random() * 180 - 90
     long = random.random() * 180 - 90
     downloader.setXY(lat,long,zoom)

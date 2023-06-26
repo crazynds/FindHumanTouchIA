@@ -30,22 +30,27 @@ class Builder(tfds.core.GeneratorBasedBuilder):
 
   def _split_generators(self, dl_manager: tfds.download.DownloadManager):
     """Returns SplitGenerators."""
-    cities = pd.read_csv("./extra/cities.csv")
+    path = dl_manager.extract('./extra.zip')
+
+    cities = pd.read_csv(path / "./extra/cities.csv")
     del cities['Unnamed: 0']
-    random = pd.read_csv("./extra/random.csv")
+    random = pd.read_csv(path / "./extra/random.csv")
     del random['Unnamed: 0']
+
 
     all = pd.concat([cities,random],ignore_index=True)
 
     return {
-        'train': self._generate_examples(all,'simple'),
+        #'train': self._generate_examples(all,path,'simple'),
+        'train': self._generate_examples(all,path,'satelite'),
     }
 
-  def _generate_examples(self, df, type):
+  def _generate_examples(self, df,path, type):
+    noArr = ['nature', 'ocean']
     for tuple in df.itertuples():
       if tuple.type != type:
         continue
       yield tuple.Index, {
-          'image': os.path.abspath(tuple.local),
-          'label': 'yes' if tuple.result != 'nature' else 'no',
+          'image': path / tuple.local,
+          'label': 'yes' if tuple.result not in noArr  else 'no',
       }
