@@ -7,9 +7,13 @@ import os
 class Builder(tfds.core.GeneratorBasedBuilder):
   """DatasetBuilder for googlemaps_images dataset."""
 
-  VERSION = tfds.core.Version('1.0.0')
+  VERSION = tfds.core.Version('1.0.4')
   RELEASE_NOTES = {
       '1.0.0': 'Initial release.',
+      '1.0.1': 'Added all classes.',
+      '1.0.2': 'Shuffled data.',
+      '1.0.3': 'Shuffled data.',
+      '1.0.4': 'Get satelite map.',
   }
 
   def _info(self) -> tfds.core.DatasetInfo:
@@ -19,7 +23,8 @@ class Builder(tfds.core.GeneratorBasedBuilder):
         features=tfds.features.FeaturesDict({
             # These are the features of your dataset like images, labels ...
             'image': tfds.features.Image(shape=(256, 256, 3)),
-            'label': tfds.features.ClassLabel(names=['no', 'yes']),
+            #'label': tfds.features.ClassLabel(names=['no', 'yes']),
+            'label': tfds.features.ClassLabel(names=['ocean','nature','farm','city','roads']),
         }),
         # If there's a common (input, target) tuple from the
         # features, specify them here. They'll be used if
@@ -38,11 +43,13 @@ class Builder(tfds.core.GeneratorBasedBuilder):
     del random['Unnamed: 0']
 
 
-    all = pd.concat([cities,random],ignore_index=True)
+    all = pd.concat([random,cities],ignore_index=True)
+    all = all.sample(frac=1)
+
 
     return {
-        #'train': self._generate_examples(all,path,'simple'),
-        'train': self._generate_examples(all,path,'satelite'),
+        'train': self._generate_examples(all,path,'simple'),
+        #'train': self._generate_examples(all,path,'satelite'),
     }
 
   def _generate_examples(self, df,path, type):
@@ -52,5 +59,6 @@ class Builder(tfds.core.GeneratorBasedBuilder):
         continue
       yield tuple.Index, {
           'image': path / tuple.local,
-          'label': 'yes' if tuple.result not in noArr  else 'no',
+          #'label': 'yes' if tuple.result not in noArr  else 'no',
+          'label': tuple.result
       }
